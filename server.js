@@ -26,11 +26,7 @@ const config = require('./config/looseWithTheGoose');
 mongoose.connect(config.database).then((result) => {
     console.log(`Connected to database ${result.connections[0].name} on ${result.connections[0].host}:${result.connections[0].port}`)
 }).catch((err) => console.log(err));
-/*
-mongoose.connect("mongodb://localhost/webscrapr",
-    { useNewUrlParser: true }, 
-    () => console.log("Mongoose is running!!!"));
-*/
+// routes
 app.get('/scrape', (req,res) => {
     axios.get('https://ezinearticles.com/').then(function(resp) {
         var $ = cheerio.load(resp.data);
