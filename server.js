@@ -54,7 +54,7 @@ app.get('/scrape', (req,res) => {
 
             console.log(result);
                 */
-               $("div.article").each(function(i, element) {
+               $(".article").each(function(i, element) {
                 // Save an empty result object
                 var result = {};
           
