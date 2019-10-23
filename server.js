@@ -1,70 +1,110 @@
 const express = require('express');
+const exphbs =require('express-handlebars');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const bodyparse = require('body-parser');
+require('dotenv/config');
 
 var db = require('./models');
 var PORT = 6969;
 
 var app = express();
 
-app/unescape(logger('dev'));
+app.use(logger("dev"));
+app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-//use public as STATIC
-app.use(express.static('public'));
-
+//use HANDLEBARS
+/*
+app.engine('handlebars', exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
+*/
 //CONNECT TO MONGO
-mongoose.connect('mongodb://localhost/web-scrapr', { useNewUrlParser: true });
-
+const config = require('./config/looseWithTheGoose');
+mongoose.connect(config.database).then((result) => {
+    console.log(`Connected to database ${result.connections[0].name} on ${result.connections[0].host}:${result.connections[0].port}`)
+}).catch((err) => console.log(err));
+/*
+mongoose.connect("mongodb://localhost/webscrapr",
+    { useNewUrlParser: true }, 
+    () => console.log("Mongoose is running!!!"));
+*/
 app.get('/scrape', (req,res) => {
-    axios.get('https://ezinearticles.com/').then((resp) => {
+    axios.get('https://ezinearticles.com/').then(function(resp) {
         var $ = cheerio.load(resp.data);
+        console.log("Hello World");
         // GRAB ELEMENT
-        $('h3').each((i,elem) => {
-            var result = {};
+        /*
+        $("article h2").each(function(i,elem) {
+            console.log(elem)
             // GET TEXT
-            result.title = $(this).children('a').text();
+            var title = $(elem).children().text();
             // GET LINK
-            result.link = $(this).children('a').attr('href');
+            var link = $(elem).children('a').attr('href');
+            var result = {
+                title:title,
+                link:link
 
+            };
+
+            // console.log(JSON.stringify(result));
+
+            console.log(title);
+
+
+            console.log(result);
+                */
+               $("div.article").each(function(i, element) {
+                // Save an empty result object
+                var result = {};
+          
+                // Add the text and href of every link, and save them as properties of the result object
+                result.title = $(element)
+                  .children("a")
+                  .text();
+                result.link = $(element)
+                  .children("a")
+                  .attr("href");
             //CREATE NEW-ARTICLE
-            db.Article.create(result).then((dbArticle) => {
+            db.Article.create(result).then(function(dbArticle) {
                 console.log(dbArticle);
-            }).catch((err) => {
+                console.log("Hello World")
+            }).catch(function(err) {
                 console.log(err);
             });
         });
-        res.send('SCARE IS COMPLETE');
+        res.send('SCRAPE IS COMPLETE');
+        
     });
 });
 
 app.get('/articles', (req,res) => {
-    db.Article.find({}).then((dbArticle) => {
+    db.Article.find({}).then(function(dbArticle) {
         res.json(dbArticle);
-    }).catch((err) => {
+    }).catch(function(err) {
         res.json(err);
     });
 });
 
 app.get('/articles/:id', (req,res) => {
     db.Article.findOne({ _id: req.params.id })
-    .populate('note').then((dbArticle) => {
+    .populate("note").then(function(dbArticle) {
         res.json(dbArticle);
-    }).catch((err) => {
+    }).catch(function(err) {
         res.json(err);
     });
 });
 
 app.post('/articles/:id', (req,res) => {
-    db.Note.create(req.body).then((dbNote) => {
+    db.Note.create(req.body).then(function(dbNote) {
         return db.Article.findByIdAndUpdate({ _id: req.params.id },
-            {  note: dbNote._id },
+            { note: dbNote._id },
             { new: true });
-    }).then((dbArticle) => {
+    }).then(function(dbArticle) {
         res.json(dbArticle);
-    }).catch((err) => {
+    }).catch(function(err) {
         res.json(err);
     });
 });
