@@ -21,11 +21,13 @@ app.use(express.json());
 app.engine('handlebars', exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 */
+
 //CONNECT TO MONGO
 const config = require('./config/looseWithTheGoose');
 mongoose.connect(config.database).then((result) => {
     console.log(`Connected to database ${result.connections[0].name} on ${result.connections[0].host}:${result.connections[0].port}`)
 }).catch((err) => console.log(err));
+
 // routes
 app.get('/scrape', (req,res) => {
     axios.get('https://ezinearticles.com/').then(function(resp) {
