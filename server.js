@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const bodyparse = require('body-parser');
+//const path = require('path');
 require('dotenv/config');
 
 var db = require('./models');
@@ -54,17 +55,22 @@ app.get('/scrape', (req,res) => {
 
             console.log(result);
                 */
-               $(".article").each(function(i, element) {
-                // Save an empty result object
-                var result = {};
-          
-                // Add the text and href of every link, and save them as properties of the result object
-                result.title = $(element)
-                  .children("a")
-                  .text();
-                result.link = $(element)
-                  .children("a")
-                  .attr("href");
+               $(".article h3").each(function(i, element) {
+                   
+                   // Add the text and href of every link, and save them as properties of the result object
+                   var title = $(element)
+                   .find("a")
+                   .text();
+                   var link = $(element)
+                   .find("a")
+                   .attr("href");
+                   
+                   // Save an empty result object
+                  var result = {
+                    title: title,
+                    link: link
+                };
+                  
             //CREATE NEW-ARTICLE
             db.Article.create(result).then(function(dbArticle) {
                 console.log(dbArticle);
