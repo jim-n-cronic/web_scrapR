@@ -4,7 +4,7 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 const axios = require('axios');
 const cheerio = require('cheerio');
-const bodyparse = require('body-parser');
+//const bodyparse = require('body-parser');
 //const path = require('path');
 require('dotenv/config');
 
@@ -25,6 +25,7 @@ app.set("view engine", "handlebars");
 
 //CONNECT TO MONGO
 const config = require('./config/looseWithTheGoose');
+//mongoose.Promise = Promise;
 mongoose.connect(config.database).then((result) => {
     console.log(`Connected to database ${result.connections[0].name} on ${result.connections[0].host}:${result.connections[0].port}`)
 }).catch((err) => console.log(err));
@@ -37,21 +38,17 @@ app.get('/scrape', (req,res) => {
         // GRAB ELEMENT
         $("article h2").each(function(i, element) {
                 
+            // Save an empty result object
+           var resultOBJ = {};
          // Add the text and href of every link, and save them as properties of the result object
-        var title = $(element).children('a').text();
-        var link = $(element).children('a').attr("href");
-                   console.log(title);
-                   console.log(link);
-                   // Save an empty result object
-                  var result = [{
-                    title: title,
-                    link: link
-                }];
-                  
+         resultOBJ.title = $(element).children('a').text();
+         resultOBJ.link = $(element).children('a').attr("href");
+                   console.log("----TITLE-----\n"+resultOBJ.title+"\n");
+                   console.log('-----LINK----\n'+resultOBJ.link+"\n\n");
+                  console.log(resultOBJ);
             //CREATE NEW-ARTICLE
-            db.Article.create(result).then(function(dbArticle) {
-                console.log(dbArticle);
-                console.log("Hello World")
+            db.Article.create(resultOBJ).then(function(dbArticle) {
+                res.json(dbArticle);
             }).catch(function(err) {
                 console.log(err);
             });
