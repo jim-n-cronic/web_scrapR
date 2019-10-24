@@ -31,45 +31,22 @@ mongoose.connect(config.database).then((result) => {
 
 // routes
 app.get('/scrape', (req,res) => {
-    axios.get('https://ezinearticles.com/').then(function(resp) {
+    axios.get('http://www.echojs.com').then(function(resp) {
         var $ = cheerio.load(resp.data);
         console.log("Hello World");
         // GRAB ELEMENT
-        /*
-        $("article h2").each(function(i,elem) {
-            console.log(elem)
-            // GET TEXT
-            var title = $(elem).children().text();
-            // GET LINK
-            var link = $(elem).children('a').attr('href');
-            var result = {
-                title:title,
-                link:link
-
-            };
-
-            // console.log(JSON.stringify(result));
-
-            console.log(title);
-
-
-            console.log(result);
-                */
-               $(".article h3").each(function(i, element) {
-                   
-                   // Add the text and href of every link, and save them as properties of the result object
-                   var title = $(element)
-                   .find("a")
-                   .text();
-                   var link = $(element)
-                   .find("a")
-                   .attr("href");
-                   
+        $("article h2").each(function(i, element) {
+                
+         // Add the text and href of every link, and save them as properties of the result object
+        var title = $(element).children('a').text();
+        var link = $(element).children('a').attr("href");
+                   console.log(title);
+                   console.log(link);
                    // Save an empty result object
-                  var result = {
+                  var result = [{
                     title: title,
                     link: link
-                };
+                }];
                   
             //CREATE NEW-ARTICLE
             db.Article.create(result).then(function(dbArticle) {
@@ -83,6 +60,8 @@ app.get('/scrape', (req,res) => {
         
     });
 });
+
+
 
 app.get('/articles', (req,res) => {
     db.Article.find({}).then(function(dbArticle) {
