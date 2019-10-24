@@ -9,6 +9,8 @@ const cheerio = require('cheerio');
 require('dotenv/config');
 
 var db = require('./models');
+
+console.log(db);
 var PORT = 6969;
 
 var app = express();
@@ -22,6 +24,7 @@ app.use(express.json());
 app.engine('handlebars', exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 */
+
 
 //CONNECT TO MONGO
 const config = require('./config/looseWithTheGoose');
