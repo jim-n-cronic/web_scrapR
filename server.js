@@ -45,6 +45,7 @@ app.get('/scrape', (req,res) => {
            var resultOBJ = {};
          // Add the text and href of every link, and save them as properties of the result object
          resultOBJ.title = $(element).children('a').text();
+         resultOBJ.byLine = $(element).find("username").children('a').attr('href');
          resultOBJ.link = $(element).children('a').attr("href");
                    console.log("----TITLE-----\n"+resultOBJ.title+"\n");
                    console.log('-----LINK----\n'+resultOBJ.link+"\n\n");
