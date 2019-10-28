@@ -19,7 +19,11 @@ app.use(logger("dev"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+//use HANDLEBARS
+/*
+app.engine('handlebars', exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
+*/
 
 
 //CONNECT TO MONGO
