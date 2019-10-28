@@ -19,11 +19,7 @@ app.use(logger("dev"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-//use HANDLEBARS
-/*
-app.engine('handlebars', exphbs({ defaultLayout: "main" }));
-app.set("view engine", "handlebars");
-*/
+
 
 
 //CONNECT TO MONGO
@@ -92,6 +88,7 @@ app.post('/articles/:id', (req,res) => {
         res.json(err);
     });
 });
+
 
 // LISTENER
 app.listen(PORT, () => {
