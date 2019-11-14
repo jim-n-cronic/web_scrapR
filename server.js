@@ -11,7 +11,7 @@ require('dotenv/config');
 var db = require('./models');
 
 console.log(db);
-var PORT = 6969;
+var PORT =process.env.PORT || 6969;
 
 var app = express();
 
