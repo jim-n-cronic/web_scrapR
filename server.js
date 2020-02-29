@@ -1,18 +1,18 @@
 const express = require('express');
-const exphbs =require('express-handlebars');
+const exphbs = require('express-handlebars');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 const axios = require('axios');
 const cheerio = require('cheerio');
-//const bodyparse = require('body-parser');
-//const path = require('path');
-require('dotenv/config');
 
+require('dotenv/config');
+// MONGO >> MODELS
 var db = require('./models');
 
-console.log(db);
-var PORT =process.env.PORT || 6969;
+// console.log(db);
+var PORT = process.env.PORT || 6969;
 
+// initialize express to our application 
 var app = express();
 
 app.use(logger("dev"));
@@ -29,66 +29,69 @@ app.set("view engine", "handlebars");
 //CONNECT TO MONGO
 const config = require('./config/looseWithTheGoose');
 //mongoose.Promise = Promise;
-mongoose.connect(config.database).then((result) => {
+mongoose.connect(config.database, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then((result) => {
     console.log(`Connected to database ${result.connections[0].name} on ${result.connections[0].host}:${result.connections[0].port}`)
 }).catch((err) => console.log(err));
 
 // routes
-app.get('/scrape', (req,res) => {
-    axios.get('http://www.echojs.com').then(function(resp) {
+app.get('/scrape', (req, res) => {
+    axios.get('http://www.echojs.com').then(function (resp) {
         var $ = cheerio.load(resp.data);
         console.log("Hello World");
         // GRAB ELEMENT
-        $("article h2").each(function(i, element) {
-                
+        $("article h2").each(function (i, element) {
+
             // Save an empty result object
-           var resultOBJ = {};
-         // Add the text and href of every link, and save them as properties of the result object
-         resultOBJ.title = $(element).children('a').text();
-         resultOBJ.byLine = $(element).find("username").children('a').attr('href');
-         resultOBJ.link = $(element).children('a').attr("href");
-                   console.log("----TITLE-----\n"+resultOBJ.title+"\n");
-                   console.log('-----LINK----\n'+resultOBJ.link+"\n\n");
-                  console.log(resultOBJ);
+            var resultOBJ = {};
+            // Add the text and href of every link, and save them as properties of the result object
+            resultOBJ.title = $(element).children('a').text();
+            resultOBJ.byLine = $(element).find("username").children('a').attr('href');
+            resultOBJ.link = $(element).children('a').attr("href");
+            console.log("----TITLE-----\n" + resultOBJ.title + "\n");
+            console.log('-----LINK----\n' + resultOBJ.link + "\n\n");
+            console.log(resultOBJ);
             //CREATE NEW-ARTICLE
-            db.Article.create(resultOBJ).then(function(dbArticle) {
+            db.Article.create(resultOBJ).then(function (dbArticle) {
                 res.json(dbArticle);
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.log(err);
             });
         });
         res.send('SCRAPE IS COMPLETE');
-        
+
     });
 });
 
 
 
-app.get('/articles', (req,res) => {
-    db.Article.find({}).then(function(dbArticle) {
+app.get('/articles', (req, res) => {
+    db.Article.find({}).then(function (dbArticle) {
         res.json(dbArticle);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json(err);
     });
 });
 
-app.get('/articles/:id', (req,res) => {
+app.get('/articles/:id', (req, res) => {
     db.Article.findOne({ _id: req.params.id })
-    .populate("note").then(function(dbArticle) {
-        res.json(dbArticle);
-    }).catch(function(err) {
-        res.json(err);
-    });
+        .populate("note").then(function (dbArticle) {
+            res.json(dbArticle);
+        }).catch(function (err) {
+            res.json(err);
+        });
 });
 
-app.post('/articles/:id', (req,res) => {
-    db.Note.create(req.body).then(function(dbNote) {
+app.post('/articles/:id', (req, res) => {
+    db.Note.create(req.body).then(function (dbNote) {
         return db.Article.findByIdAndUpdate({ _id: req.params.id },
             { note: dbNote._id },
             { new: true });
-    }).then(function(dbArticle) {
+    }).then(function (dbArticle) {
         res.json(dbArticle);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json(err);
     });
 });
