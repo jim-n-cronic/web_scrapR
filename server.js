@@ -36,7 +36,15 @@ mongoose.connect(config.database, {
     console.log(`Connected to database ${result.connections[0].name} on ${result.connections[0].host}:${result.connections[0].port}`)
 }).catch((err) => console.log(err));
 
-// routes
+// ROUTES
+/**
+ *  '/scrape'  >> scrape_method
+ *  
+ *  app.get>>> '/aricles' : 'articles from {{ scrame_method }}' via JSON
+ *    |%$_ A/id _$%| = app.get>>> '/articles/slg>>ID' 'specific articleOBJ' << JSON
+ * 
+ *  app.post>>> (A/id) >>> 'creates a note to the matched article' 
+ */
 app.get('/scrape', (req, res) => {
     axios.get('http://www.echojs.com').then(function (resp) {
         var $ = cheerio.load(resp.data);
@@ -69,7 +77,8 @@ app.get('/scrape', (req, res) => {
 
 app.get('/articles', (req, res) => {
     db.Article.find({}).then(function (dbArticle) {
-        res.json(dbArticle);
+        const data = res.json(dbArticle);
+        console.log(data)
     }).catch(function (err) {
         res.json(err);
     });
